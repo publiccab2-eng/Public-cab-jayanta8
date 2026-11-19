@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Public Cab - Official App Download</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;600;700;800&display=swap');
+
+    body {
+      background-color: #070d1f;
+      color: #ffffff;
+      font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+      overflow-x: hidden;
+    }
+
+    @keyframes float3D {
+      0%, 100% {
+        transform: translateY(0px) scale(1);
+      }
+      50% {
+        transform: translateY(-6px) scale(1.015);
+      }
+    }
+
+    .btn-3d-green {
+      background: linear-gradient(180deg, #16c768 0%, #0ea854 100%);
+      box-shadow: 0 7px 0 #076e35, 0 14px 24px rgba(14, 168, 84, 0.45);
+      animation: float3D 2.6s ease-in-out infinite;
+      transition: all 0.15s ease;
+    }
+    .btn-3d-green:active {
+      transform: translateY(5px) !important;
+      box-shadow: 0 2px 0 #076e35, 0 5px 10px rgba(14, 168, 84, 0.4);
+    }
+
+    .btn-3d-driver {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 7px 0 #92400e, 0 14px 24px rgba(245, 158, 11, 0.45);
+      animation: float3D 2.9s ease-in-out infinite;
+      animation-delay: 0.3s;
+      transition: all 0.15s ease;
+    }
+    .btn-3d-driver:active {
+      transform: translateY(5px) !important;
+      box-shadow: 0 2px 0 #92400e, 0 5px 10px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-3d-blue {
+      background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 7px 0 #1e40af, 0 14px 24px rgba(37, 99, 235, 0.45);
+      animation: float3D 3.2s ease-in-out infinite;
+      animation-delay: 0.6s;
+      transition: all 0.15s ease;
+    }
+    .btn-3d-blue:active {
+      transform: translateY(5px) !important;
+      box-shadow: 0 2px 0 #1e40af, 0 5px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    .card-dark {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+    }
+
+    .card-gold-border {
+      background: #0f172a;
+      border: 1.5px solid #eab308;
+    }
+
+    @keyframes popDigital {
+      0% { transform: scale(0.82) translateY(15px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .digital-pop {
+      animation: popDigital 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24">
+
+  <!-- Digital Status / Upload Successful Popup -->
+  <div id="digitalSuccessPopup" class="fixed inset-0 bg-black/70 backdrop-blur-[2px] hidden items-center justify-center z-[120] p-4">
+    <div id="digitalPopupCard" class="digital-pop bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-emerald-400 rounded-3xl p-6 max-w-xs w-full text-center shadow-[0_0_40px_rgba(16,185,129,0.45)]">
+      <div id="digitalPopupIcon" class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-400 flex items-center justify-center mx-auto text-3xl mb-3 shadow-inner">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div id="digitalPopupBadge" class="inline-block bg-emerald-500/20 text-emerald-300 text-[11px] font-bold px-3 py-0.5 rounded-full mb-1.5">
+        INSTANT LIVE
+      </div>
+      <h3 id="digitalPopupTitle" class="text-xl font-extrabold text-white">Upload Successful!</h3>
+      <p id="digitalSuccessText" class="text-xs text-emerald-200 mt-1.5 leading-relaxed font-medium">
+        আপলোড সফল হয়েছে এবং সাথে সাথে লাইভ হয়ে গেছে!
+      </p>
+      <button onclick="closeDigitalSuccess()" class="mt-4 w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition active:scale-95">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="max-w-md mx-auto px-3 pt-3 space-y-4">
+
+    <!-- Top Audio Welcome Banner -->
+    <div class="card-gold-border rounded-2xl p-4 flex items-center justify-between shadow-lg">
+      <div class="pr-2">
+        <div class="flex items-center gap-2 text-yellow-400 font-bold text-base">
+          <i class="fa-solid fa-volume-high"></i>
+          <span>Welcome to Public Cab Online!</span>
+        </div>
+        <p class="text-slate-300 text-xs mt-1 leading-relaxed">নিচে গাইডলাইন ও ছবি দেওয়া আছে, দেখে ইনস্টল করুন। ওয়েবসাইট লোড হলেই APK ডাউনলোড হবে।</p>
+      </div>
+      <button onclick="playWelcomeVoice()" id="listenBtn" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-sm shadow-md shrink-0 active:scale-95 transition">
+        <i class="fa-solid fa-play"></i> <span id="listenText">Listen</span>
+      </button>
+    </div>
+
+    <!-- Main App Download Card -->
+    <div class="card-dark rounded-3xl p-4 shadow-2xl border border-slate-800">
+      
+      <!-- Logo & Title Header (Click 21 times on Logo for Admin) -->
+      <div class="flex items-center gap-4">
+        <div id="secretLogoTrigger" class="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-yellow-400 shadow-lg shrink-0 cursor-pointer select-none active:scale-95 transition">
+          <img id="siteLogoImg" src="https://cdn-icons-png.flaticon.com/512/3097/3097180.png" alt="Public Cab Logo" class="w-full h-full object-cover" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight">Public Cab</h1>
+          <p class="text-yellow-400 text-xs font-semibold mt-0.5">PublicCab.online • Ride • Parcel • Shop</p>
+          <div class="mt-2 inline-flex items-center gap-2 bg-slate-900/90 border border-yellow-500/40 px-3 py-1.5 rounded-xl">
+            <i class="fa-solid fa-circle-check text-yellow-400 text-sm"></i>
+            <span class="text-xs text-slate-200 font-medium leading-tight">Official Verified Build •<br/>100% Safe</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-3 gap-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 mt-4 text-center">
+        <div>
+          <div id="appSizeText" class="font-bold text-white text-sm">6.7 MB</div>
+          <div class="text-[11px] text-slate-400 mt-0.5"><i class="fa-solid fa-database text-slate-500 mr-1"></i>Size</div>
+        </div>
+        <div class="border-x border-slate-800">
+          <div id="downloadCountText" class="font-bold text-white text-sm">254,812+</div>
+          <div class="text-[11px] text-slate-400 mt-0.5"><i class="fa-solid fa-cloud-arrow-down text-slate-500 mr-1"></i>Downloads</div>
+        </div>
+        <div>
+          <div id="appVersionText" class="font-bold text-white text-sm">v2.4.0</div>
+          <div class="text-[11px] text-slate-400 mt-0.5"><i class="fa-solid fa-tag text-slate-500 mr-1"></i>Version</div>
+        </div>
+      </div>
+
+      <!-- 3D Download Buttons Section -->
+      <div class="mt-5 space-y-4">
+        
+        <!-- 1. Customer Android App Button -->
+        <button onclick="handleAppDownload('customerAndroid')" class="btn-3d-green w-full rounded-2xl py-3.5 px-4 flex items-center justify-center gap-3 text-left text-white cursor-pointer">
+          <i class="fa-brands fa-android text-3xl shrink-0"></i>
+          <div>
+            <div class="font-extrabold text-base leading-tight">Install Customer App (.APK)</div>
+            <div class="text-[11px] text-emerald-100 font-medium mt-0.5">Direct Fast Download • All Android Phones</div>
+          </div>
+        </button>
+
+        <!-- 2. Driver Android App Button -->
+        <button onclick="handleAppDownload('driverAndroid')" class="btn-3d-driver w-full rounded-2xl py-3.5 px-4 flex items-center justify-center gap-3 text-left text-white cursor-pointer">
+          <i class="fa-solid fa-car-side text-2xl shrink-0"></i>
+          <div>
+            <div class="font-extrabold text-base leading-tight">Download Driver App (.APK)</div>
+            <div class="text-[11px] text-amber-100 font-medium mt-0.5">Partner & Driver Build • Android Only</div>
+          </div>
+        </button>
+
+        <!-- 3. Customer iOS / Apple App Button -->
+        <button onclick="handleAppDownload('customerIos')" class="btn-3d-blue w-full rounded-2xl py-3.5 px-4 flex items-center justify-center gap-3 text-left text-white cursor-pointer">
+          <i class="fa-brands fa-apple text-3xl shrink-0"></i>
+          <div>
+            <div class="font-extrabold text-base leading-tight">Install iOS / Apple App</div>
+            <div class="text-[11px] text-blue-100 font-medium mt-0.5">Customer App • iPhone & iPad Direct</div>
+          </div>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Booking Categories -->
+    <div class="card-dark rounded-3xl p-4">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-1 h-5 bg-yellow-400 rounded-full"></div>
+        <h2 class="font-bold text-white text-base">Booking Categories</h2>
+      </div>
+      <div class="grid grid-cols-4 gap-2 text-center">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3">
+          <i class="fa-solid fa-taxi text-yellow-400 text-2xl mb-1.5"></i>
+          <div class="text-xs font-semibold text-slate-200 leading-tight">Cab<br/>Ride</div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3">
+          <i class="fa-solid fa-truck-medical text-yellow-400 text-2xl mb-1.5"></i>
+          <div class="text-xs font-semibold text-slate-200 leading-tight">Ambulance</div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3">
+          <i class="fa-solid fa-box-open text-yellow-400 text-2xl mb-1.5"></i>
+          <div class="text-xs font-semibold text-slate-200 leading-tight">Parcel</div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3">
+          <i class="fa-solid fa-store text-yellow-400 text-2xl mb-1.5"></i>
+          <div class="text-xs font-semibold text-slate-200 leading-tight">Shop</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to Installing Guideline -->
+    <div class="card-gold-border rounded-3xl p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-yellow-400 text-lg"></i>
+          <h2 class="font-bold text-yellow-400 text-base leading-tight">How to Installing<br/>Guideline</h2>
+        </div>
+        <span class="bg-yellow-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-xl">Step-by-Step</span>
+      </div>
+
+      <div id="guidelineImgContainer" class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-900">
+        <img id="guidelinePosterImg" src="https://placehold.co/600x700/0f172a/eab308?text=Public+Cab+Installation+Guideline" alt="Installation Guideline" class="w-full h-auto object-contain" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <div class="bg-white text-slate-900 rounded-2xl p-3 shadow">
+          <div class="font-extrabold text-blue-900 text-sm">1. Download App</div>
+          <p class="text-xs text-slate-600 mt-1">Click the Install button above to download the app file.</p>
+        </div>
+        <div class="bg-white text-slate-900 rounded-2xl p-3 shadow">
+          <div class="font-extrabold text-blue-900 text-sm">2. Open File</div>
+          <p class="text-xs text-slate-600 mt-1">Click on the downloaded file when finished.</p>
+        </div>
+        <div class="bg-white text-slate-900 rounded-2xl p-3 shadow">
+          <div class="font-extrabold text-blue-900 text-sm">3. Install Anyway</div>
+          <p class="text-xs text-slate-600 mt-1">Press "Install anyway" if any security warning appears.</p>
+        </div>
+        <div class="bg-white text-slate-900 rounded-2xl p-3 shadow">
+          <div class="font-extrabold text-blue-900 text-sm">4. Ready to Use</div>
+          <p class="text-xs text-slate-600 mt-1">Open and enjoy the app after installation.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Floating WhatsApp & Call Support Buttons -->
+  <div class="fixed bottom-4 right-4 flex flex-col gap-3 z-40">
+    <a id="whatsappFloatBtn" href="https://wa.me/919609546435" target="_blank" class="w-13 h-13 p-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white shadow-xl flex items-center justify-center text-2xl transition active:scale-90">
+      <i class="fa-brands fa-whatsapp"></i>
+    </a>
+    <a id="callFloatBtn" href="tel:+911169269427" class="w-13 h-13 p-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-xl flex items-center justify-center text-xl transition active:scale-90">
+      <i class="fa-solid fa-phone"></i>
+    </a>
+  </div>
+
+  <!-- Coming Soon Popup Modal -->
+  <div id="comingSoonModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="card-gold-border rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl transform transition-all">
+      <div class="w-16 h-16 rounded-full bg-yellow-400/20 text-yellow-400 flex items-center justify-center mx-auto text-3xl mb-3">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <h3 class="text-xl font-extrabold text-yellow-400">Coming Soon!</h3>
+      <p id="comingSoonMsg" class="text-sm text-slate-200 mt-2 leading-relaxed">
+        এই অ্যাপটি এখনো আপলোড করা হয়নি। খুব শীঘ্রই ডাউনলোডের জন্য পাওয়া যাবে!
+      </p>
+      <button onclick="closeModal('comingSoonModal')" class="mt-5 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">
+        ঠিক আছে (OK)
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin Password Verification Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="card-gold-border rounded-3xl p-5 max-w-sm w-full shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2 text-yellow-400 font-bold text-lg">
+          <i class="fa-solid fa-lock"></i>
+          <span>Admin Verification</span>
+        </div>
+        <button onclick="closeModal('adminLoginModal')" class="w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center font-bold">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <label class="block text-xs text-slate-300 mb-2">Enter Admin Password:</label>
+      <input type="password" id="adminPassInput" placeholder="Enter Password..." class="w-full bg-slate-900 border border-slate-700 focus:border-yellow-400 rounded-xl px-4 py-3 text-white text-sm outline-none" />
+      <p id="passErrorText" class="text-rose-400 text-xs mt-1.5 hidden">ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।</p>
+      <button onclick="verifyAdminPassword()" class="mt-4 w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
+        Unlock Admin Panel
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin Control Panel Modal -->
+  <div id="adminPanelModal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden overflow-y-auto z-50 p-3">
+    <div class="card-gold-border rounded-3xl p-4 max-w-md mx-auto my-2 space-y-4 shadow-2xl">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2 text-yellow-400 font-extrabold text-lg">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Admin Control Panel</span>
+        </div>
+        <button onclick="closeModal('adminPanelModal')" class="w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center font-bold">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- 1. Website Logo -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sm text-white"><i class="fa-regular fa-image text-blue-400 mr-1.5"></i>1. Website Logo</span>
+          <span id="statusLogo" class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Default</span>
+        </div>
+        <input type="file" id="logoFileInput" accept="image/*" class="w-full text-xs text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-900" />
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="uploadMediaToFirebase('logo', 'logoFileInput', 5)" class="col-span-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Upload Logo
+          </button>
+          <button onclick="removeFirebaseItem('logo')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Remove
+          </button>
+        </div>
+        <div id="prog_logo" class="hidden space-y-1">
+          <div class="flex justify-between text-[11px] font-bold text-emerald-300">
+            <span id="txt_logo">Uploading...</span>
+            <span id="pct_logo">1%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="bar_logo" class="bg-emerald-400 h-2.5 transition-all duration-150" style="width: 1%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Customer Android APK (Max 20MB) -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sm text-white"><i class="fa-brands fa-android text-emerald-400 mr-1.5"></i>2. Customer Android APK (Max 20MB)</span>
+          <span id="statusCustomerAndroid" class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40">Not Uploaded</span>
+        </div>
+        <input type="file" id="fileCustomerAndroid" accept=".apk,application/vnd.android.package-archive" class="w-full text-xs text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-900" />
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="saveAppBuild('customerAndroid', 'fileCustomerAndroid')" class="col-span-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Upload Customer APK
+          </button>
+          <button onclick="removeFirebaseItem('customerAndroid')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Remove
+          </button>
+        </div>
+        <div id="prog_customerAndroid" class="hidden space-y-1">
+          <div class="flex justify-between text-[11px] font-bold text-emerald-300">
+            <span id="txt_customerAndroid">Uploading APK...</span>
+            <span id="pct_customerAndroid">1%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="bar_customerAndroid" class="bg-emerald-400 h-2.5 transition-all duration-150" style="width: 1%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Driver Android APK (Max 20MB) -->
+      <div class="bg-slate-900/80 border border-amber-500/30 rounded-2xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sm text-amber-400"><i class="fa-solid fa-car text-amber-400 mr-1.5"></i>3. Driver Android APK (Max 20MB)</span>
+          <span id="statusDriverAndroid" class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40">Not Uploaded</span>
+        </div>
+        <input type="file" id="fileDriverAndroid" accept=".apk,application/vnd.android.package-archive" class="w-full text-xs text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-900" />
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="saveAppBuild('driverAndroid', 'fileDriverAndroid')" class="col-span-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">
+            Upload Driver APK
+          </button>
+          <button onclick="removeFirebaseItem('driverAndroid')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Remove
+          </button>
+        </div>
+        <div id="prog_driverAndroid" class="hidden space-y-1">
+          <div class="flex justify-between text-[11px] font-bold text-amber-300">
+            <span id="txt_driverAndroid">Uploading APK...</span>
+            <span id="pct_driverAndroid">1%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="bar_driverAndroid" class="bg-amber-400 h-2.5 transition-all duration-150" style="width: 1%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Customer iOS / Apple File -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sm text-white"><i class="fa-brands fa-apple text-slate-200 mr-1.5"></i>4. Customer iOS / Apple App</span>
+          <span id="statusCustomerIos" class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40">Not Uploaded</span>
+        </div>
+        <input type="file" id="fileCustomerIos" class="w-full text-xs text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-900" />
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="saveAppBuild('customerIos', 'fileCustomerIos')" class="col-span-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Upload iOS File
+          </button>
+          <button onclick="removeFirebaseItem('customerIos')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Remove
+          </button>
+        </div>
+        <div id="prog_customerIos" class="hidden space-y-1">
+          <div class="flex justify-between text-[11px] font-bold text-blue-300">
+            <span id="txt_customerIos">Uploading iOS...</span>
+            <span id="pct_customerIos">1%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="bar_customerIos" class="bg-blue-400 h-2.5 transition-all duration-150" style="width: 1%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Guideline Image -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sm text-white"><i class="fa-solid fa-image text-purple-400 mr-1.5"></i>5. Guideline Image</span>
+          <span id="statusGuideline" class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Default</span>
+        </div>
+        <input type="file" id="guidelineFileInput" accept="image/*" class="w-full text-xs text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-900" />
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="uploadMediaToFirebase('guideline', 'guidelineFileInput', 10)" class="col-span-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Upload Guideline
+          </button>
+          <button onclick="removeFirebaseItem('guideline')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+            Remove
+          </button>
+        </div>
+        <div id="prog_guideline" class="hidden space-y-1">
+          <div class="flex justify-between text-[11px] font-bold text-purple-300">
+            <span id="txt_guideline">Uploading Image...</span>
+            <span id="pct_guideline">1%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="bar_guideline" class="bg-purple-400 h-2.5 transition-all duration-150" style="width: 1%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. App Info & Support Numbers -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+        <span class="font-bold text-sm text-white block"><i class="fa-brands fa-whatsapp text-emerald-400 mr-1.5"></i>6. Support Numbers & App Version</span>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="inputWhatsapp" value="9609546435" placeholder="WhatsApp Number" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
+          <input type="text" id="inputCall" value="+911169269427" placeholder="Support Call Number" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="inputVersion" value="v2.4.0" placeholder="App Version (e.g. v2.4.0)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
+          <input type="text" id="inputDownloads" value="254,812+" placeholder="Downloads Text" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
+        </div>
+        <button onclick="saveSupportAndMeta()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2.5 rounded-xl text-xs transition">
+          Save Support & Info Live
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJmu9uD5rT5ee1jNLpMQaTVIa_-yTrPzw",
+      authDomain: "public-service-11054.firebaseapp.com",
+      databaseURL: "https://public-service-11054-default-rtdb.firebaseio.com",
+      projectId: "public-service-11054",
+      storageBucket: "public-service-11054.firebasestorage.app",
+      messagingSenderId: "639313474404",
+      appId: "1:639313474404:web:9ac4645e521021c044c071",
+      measurementId: "G-ZMCRHQ4VC3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    const LOCAL_CACHE_KEY = "publicCabSiteCache_v11";
+
+    let appData = {
+      logo: "",
+      guideline: "",
+      customerAndroid: { url: "", size: "6.7 MB", fileName: "" },
+      driverAndroid: { url: "", size: "", fileName: "" },
+      customerIos: { url: "", size: "", fileName: "" },
+      meta: {
+        whatsapp: "9609546435",
+        call: "+911169269427",
+        version: "v2.4.0",
+        downloads: "254,812+"
+      }
+    };
+
+    let popupTimer = null;
+    function showDigitalPopup(title, message, isError = false) {
+      const popup = document.getElementById('digitalSuccessPopup');
+      const card = document.getElementById('digitalPopupCard');
+      const icon = document.getElementById('digitalPopupIcon');
+      const badge = document.getElementById('digitalPopupBadge');
+      const titleEl = document.getElementById('digitalPopupTitle');
+      const textEl = document.getElementById('digitalSuccessText');
+
+      titleEl.innerText = title;
+      textEl.innerText = message;
+
+      if (isError) {
+        card.className = "digital-pop bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-rose-400 rounded-3xl p-6 max-w-xs w-full text-center shadow-[0_0_40px_rgba(244,63,94,0.35)]";
+        icon.className = "w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-400 flex items-center justify-center mx-auto text-3xl mb-3 shadow-inner";
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        badge.className = "inline-block bg-rose-500/20 text-rose-300 text-[11px] font-bold px-3 py-0.5 rounded-full mb-1.5";
+        badge.innerText = "NOTICE";
+        textEl.className = "text-xs text-rose-200 mt-1.5 leading-relaxed font-medium";
+      } else {
+        card.className = "digital-pop bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-emerald-400 rounded-3xl p-6 max-w-xs w-full text-center shadow-[0_0_40px_rgba(16,185,129,0.45)]";
+        icon.className = "w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-400 flex items-center justify-center mx-auto text-3xl mb-3 shadow-inner";
+        icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+        badge.className = "inline-block bg-emerald-500/20 text-emerald-300 text-[11px] font-bold px-3 py-0.5 rounded-full mb-1.5";
+        badge.innerText = "INSTANT LIVE";
+        textEl.className = "text-xs text-emerald-200 mt-1.5 leading-relaxed font-medium";
+      }
+
+      popup.classList.remove('hidden');
+      popup.classList.add('flex');
+
+      clearTimeout(popupTimer);
+      popupTimer = setTimeout(() => {
+        closeDigitalSuccess();
+      }, 2800);
+    }
+
+    function closeDigitalSuccess() {
+      const popup = document.getElementById('digitalSuccessPopup');
+      popup.classList.add('hidden');
+      popup.classList.remove('flex');
+    }
+
+    function hasCloudUrl(item) {
+      return Boolean(item && typeof item.url === 'string' && item.url.trim() !== '' && !item.url.startsWith('blob:'));
+    }
+
+    function renderAllUI(data) {
+      const sanitized = { ...data };
+      ['customerAndroid', 'driverAndroid', 'customerIos'].forEach((k) => {
+        if (sanitized[k] && typeof sanitized[k].url === 'string' && sanitized[k].url.startsWith('blob:')) {
+          sanitized[k].url = "";
+        }
+      });
+
+      appData = {
+        ...appData,
+        ...sanitized,
+        meta: { ...appData.meta, ...(sanitized.meta || {}) }
+      };
+
+      try {
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(appData));
+      } catch (e) {}
+
+      if (appData.logo) {
+        document.getElementById('siteLogoImg').src = appData.logo;
+        setBadge('statusLogo', 'Live ✓', true);
+      } else {
+        document.getElementById('siteLogoImg').src = "https://cdn-icons-png.flaticon.com/512/3097/3097180.png";
+        setBadge('statusLogo', 'Default', false);
+      }
+
+      if (appData.guideline) {
+        document.getElementById('guidelinePosterImg').src = appData.guideline;
+        setBadge('statusGuideline', 'Live ✓', true);
+      } else {
+        document.getElementById('guidelinePosterImg').src = "https://placehold.co/600x700/0f172a/eab308?text=Public+Cab+Installation+Guideline";
+        setBadge('statusGuideline', 'Default', false);
+      }
+
+      if (hasCloudUrl(appData.customerAndroid)) {
+        setBadge('statusCustomerAndroid', 'Live ✓', true);
+        if (appData.customerAndroid.size) document.getElementById('appSizeText').innerText = appData.customerAndroid.size;
+      } else {
+        setBadge('statusCustomerAndroid', 'Not Uploaded', false);
+      }
+
+      if (hasCloudUrl(appData.driverAndroid)) {
+        setBadge('statusDriverAndroid', 'Live ✓', true);
+      } else {
+        setBadge('statusDriverAndroid', 'Not Uploaded', false);
+      }
+
+      if (hasCloudUrl(appData.customerIos)) {
+        setBadge('statusCustomerIos', 'Live ✓', true);
+      } else {
+        setBadge('statusCustomerIos', 'Not Uploaded', false);
+      }
+
+      const wa = appData.meta.whatsapp || "9609546435";
+      const call = appData.meta.call || "+911169269427";
+      const ver = appData.meta.version || "v2.4.0";
+      const dl = appData.meta.downloads || "254,812+";
+
+      document.getElementById('whatsappFloatBtn').href = `https://wa.me/${wa.replace(/[^0-9]/g, '')}`;
+      document.getElementById('callFloatBtn').href = `tel:${call}`;
+      document.getElementById('appVersionText').innerText = ver;
+      document.getElementById('downloadCountText').innerText = dl;
+    }
+
+    try {
+      const cached = localStorage.getItem(LOCAL_CACHE_KEY);
+      if (cached) renderAllUI(JSON.parse(cached));
+    } catch (e) {}
+
+    db.ref('publicCabSite').on('value', (snapshot) => {
+      const data = snapshot.val() || {};
+      renderAllUI(data);
+    });
+
+    function setBadge(id, text, isLive) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerText = text;
+      if (isLive) {
+        el.className = "text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-semibold";
+      } else {
+        el.className = "text-[11px] px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 font-semibold";
+      }
+    }
+
+    function triggerDirectFileDownload(url, fileName) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName || 'PublicCab.apk';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function handleAppDownload(type) {
+      const item = appData[type];
+      if (!hasCloudUrl(item)) {
+        let label = "অ্যাপটি";
+        if (type === 'customerAndroid') label = "Customer Android App (.APK)";
+        if (type === 'driverAndroid') label = "Driver Android App (.APK)";
+        if (type === 'customerIos') label = "iOS / Apple App";
+
+        document.getElementById('comingSoonMsg').innerText = `${label} এখনো আপলোড করা হয়নি। খুব শীঘ্রই এটি লাইভ হবে (Coming Soon)!`;
+        openModal('comingSoonModal');
+        return;
+      }
+
+      triggerDirectFileDownload(item.url, item.fileName || `PublicCab_${type}.apk`);
+    }
+
+    let logoClickCount = 0;
+    let clickResetTimer = null;
+
+    document.getElementById('secretLogoTrigger').addEventListener('click', () => {
+      logoClickCount++;
+      clearTimeout(clickResetTimer);
+      clickResetTimer = setTimeout(() => {
+        logoClickCount = 0;
+      }, 4000);
+
+      if (logoClickCount === 21) {
+        logoClickCount = 0;
+        document.getElementById('adminPassInput').value = "";
+        document.getElementById('passErrorText').classList.add('hidden');
+        openModal('adminLoginModal');
+      }
+    });
+
+    function verifyAdminPassword() {
+      const pass = document.getElementById('adminPassInput').value.trim();
+      if (pass === "78764825555") {
+        closeModal('adminLoginModal');
+        openModal('adminPanelModal');
+      } else {
+        document.getElementById('passErrorText').classList.remove('hidden');
+      }
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function compressImageFast(file, maxWidth = 700, quality = 0.72) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          let w = img.width;
+          let h = img.height;
+          if (w > maxWidth) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = async () => {
+          URL.revokeObjectURL(url);
+          resolve(await readFileAsDataURL(file));
+        };
+        img.src = url;
+      });
+    }
+
+    function uploadRealCloudFile(key, storageRef, file) {
+      return new Promise((resolve, reject) => {
+        const progBox = document.getElementById(`prog_${key}`);
+        const progBar = document.getElementById(`bar_${key}`);
+        const pctEl = document.getElementById(`pct_${key}`);
+        const txtEl = document.getElementById(`txt_${key}`);
+
+        progBox.classList.remove('hidden');
+        let displayPct = 1;
+        let realBytesPct = 1;
+
+        const setCounter = (val, label) => {
+          const safeVal = Math.max(1, Math.min(100, Math.round(val)));
+          progBar.style.width = safeVal + "%";
+          pctEl.innerText = safeVal + "%";
+          if (label) txtEl.innerText = label;
+        };
+
+        setCounter(1, "Uploading... 1%");
+
+        const paceTimer = setInterval(() => {
+          const softLimit = Math.max(realBytesPct, 96);
+          if (displayPct < softLimit) {
+            displayPct += 1;
+            setCounter(displayPct, `Uploading... ${displayPct}%`);
+          }
+        }, 70);
+
+        try {
+          const uploadTask = storageRef.put(file);
+
+          uploadTask.on(
+            'state_changed',
+            (snap) => {
+              if (snap.totalBytes > 0) {
+                realBytesPct = Math.min(99, Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
+                if (realBytesPct > displayPct) displayPct = realBytesPct;
+                setCounter(displayPct, `Uploading... ${displayPct}%`);
+              }
+            },
+            (err) => {
+              clearInterval(paceTimer);
+              progBox.classList.add('hidden');
+              setCounter(1, "Uploading...");
+              reject(err);
+            },
+            async () => {
+              try {
+                const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                clearInterval(paceTimer);
+                setCounter(100, "Completed 100%");
+                setTimeout(() => {
+                  progBox.classList.add('hidden');
+                  setCounter(1, "Uploading...");
+                  resolve(downloadUrl);
+                }, 250);
+              } catch (e) {
+                clearInterval(paceTimer);
+                progBox.classList.add('hidden');
+                setCounter(1, "Uploading...");
+                reject(e);
+              }
+            }
+          );
+        } catch (err) {
+          clearInterval(paceTimer);
+          progBox.classList.add('hidden');
+          setCounter(1, "Uploading...");
+          reject(err);
+        }
+      });
+    }
+
+    async function saveAppBuild(key, fileInputId) {
+      const fileInput = document.getElementById(fileInputId);
+      const file = fileInput.files[0];
+      if (!file) {
+        showDigitalPopup("ফাইল সিলেক্ট করুন", "দয়া করে আগে একটি APK ফাইল সিলেক্ট করুন।", true);
+        return;
+      }
+
+      const maxBytes = 20 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        showDigitalPopup("ফাইল সাইজ ২০ MB-এর বেশি", "দয়া করে ২০ MB বা তার কম সাইজের APK ফাইল দিন।", true);
+        return;
+      }
+
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const storageRef = storage.ref(`publicCab/${key}/${Date.now()}_${safeName}`);
+
+      try {
+        const cloudUrl = await uploadRealCloudFile(key, storageRef, file);
+        if (!cloudUrl) throw new Error("Empty cloud download URL");
+
+        const payload = {
+          url: cloudUrl,
+          size: sizeMB,
+          fileName: file.name,
+          updatedAt: Date.now()
+        };
+
+        await db.ref(`publicCabSite/${key}`).set(payload);
+        renderAllUI({ ...appData, [key]: payload });
+        fileInput.value = "";
+
+        showDigitalPopup("Upload Successful!", `${file.name} (${sizeMB}) সব ফোনে ডাউনলোডের জন্য লাইভ হয়ে গেছে!`);
+      } catch (err) {
+        showDigitalPopup(
+          "আপলোড সম্পন্ন হয়নি",
+          "Firebase Storage Rules (allow read, write: if true;) এবং নেটওয়ার্ক চেক করে আবার চেষ্টা করুন।",
+          true
+        );
+      }
+    }
+
+    async function uploadMediaToFirebase(key, fileInputId, maxMB) {
+      const fileInput = document.getElementById(fileInputId);
+      const file = fileInput.files[0];
+      if (!file) {
+        showDigitalPopup("ছবি সিলেক্ট করুন", "দয়া করে একটি ছবি সিলেক্ট করুন।", true);
+        return;
+      }
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const storageRef = storage.ref(`publicCab/${key}/${Date.now()}_${safeName}`);
+
+      let finalUrl = "";
+      try {
+        finalUrl = await uploadRealCloudFile(key, storageRef, file);
+      } catch (e) {
+        finalUrl = await compressImageFast(file, key === 'logo' ? 450 : 750, 0.72);
+      }
+
+      await db.ref(`publicCabSite/${key}`).set(finalUrl).catch(() => {});
+      renderAllUI({ ...appData, [key]: finalUrl });
+      fileInput.value = "";
+
+      showDigitalPopup(
+        "Upload Successful!",
+        key === 'logo' ? "ওয়েবসাইট লোগো আপলোড সফল এবং লাইভ!" : "গাইডলাইন ছবি আপলোড সফল এবং লাইভ!"
+      );
+    }
+
+    function removeFirebaseItem(key) {
+      const updated = { ...appData };
+      if (key === 'logo' || key === 'guideline') {
+        updated[key] = "";
+      } else {
+        updated[key] = { url: "", size: "", fileName: "" };
+      }
+      renderAllUI(updated);
+      db.ref(`publicCabSite/${key}`).remove().catch(() => {});
+      showDigitalPopup("Removed Live!", "সফলভাবে রিমুভ এবং লাইভ আপডেট করা হয়েছে!");
+    }
+
+    function saveSupportAndMeta() {
+      const whatsapp = document.getElementById('inputWhatsapp').value.trim();
+      const call = document.getElementById('inputCall').value.trim();
+      const version = document.getElementById('inputVersion').value.trim();
+      const downloads = document.getElementById('inputDownloads').value.trim();
+
+      const metaPayload = { whatsapp, call, version, downloads };
+      renderAllUI({ ...appData, meta: metaPayload });
+      db.ref('publicCabSite/meta').set(metaPayload).catch(() => {});
+      showDigitalPopup("Saved Live!", "সাপোর্ট নম্বর ও অ্যাপ তথ্য লাইভ সেভ সাকসেসফুল!");
+    }
+
+    function openModal(id) {
+      const m = document.getElementById(id);
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function playWelcomeVoice() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const banglaText = "নিচে গাইডলাইন দেওয়া আছে, সেই গাইডলাইন ও ছবি দেখে ইনস্টল করে নিন। ইনস্টল করতে কোনো অসুবিধা হলে নিচের ছবি এবং ধাপগুলো অনুসরণ করুন। ওয়েবসাইট লোড হওয়ার পরে ডাউনলোড বাটনে ক্লিক করলেই এপিকে ফাইল ডাউনলোড হবে, কোনো কারণে ডাউনলোডে আটকে যাবে না।";
+        const msg = new SpeechSynthesisUtterance(banglaText);
+        msg.lang = "bn-IN";
+        msg.rate = 0.95;
+        window.speechSynthesis.speak(msg);
+      }
+    }
+  </script>
+</body>
+</html>
